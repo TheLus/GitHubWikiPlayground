@@ -20,7 +20,7 @@ jobs:
           HTML_URL: ${{ github.event.pages[0].html_url }}
           WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           SUMMARY: ${{ github.event.pages[0].summary }}
-          SENDER: ${{ github.event.sender }}
+          SENDER: ${{ github.event.sender.login }}
         run: |
           url=${HTML_URL}/_compare/$(git rev-parse HEAD^)...$(git rev-parse HEAD)
           curl -X POST -H 'Content-type: application/json' \
