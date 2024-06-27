@@ -19,27 +19,10 @@ jobs:
           TITLE: ${{ github.event.pages[0].title }}
           HTML_URL: ${{ github.event.pages[0].html_url }}
           WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SUMMARY: ${{ github.event.pages[0].summary }}
+          SENDER: ${{ github.event.sender }}
         run: |
           url=${HTML_URL}/_compare/$(git rev-parse HEAD^)...$(git rev-parse HEAD)
-          curl -X POST ${WEBHOOK_URL} \
-               -H 'Content-type: application/json' \
-               -d "{ \
-                    \"blocks\": [{ \
-                      \"type\": \"section\", \
-                      \"text\":{ \
-                        \"type\": \"mrkdwn\", \
-                        \"text\": \"Wiki ${ACTION}: ${TITLE}\" \
-                      }, \
-                      \"accessory\": { \
-                        \"type\": \"button\", \
-                        \"text\": { \
-                          \"type\": \"plain_text\", \
-                          \"text\": \"Go to Detail\", \
-                          \"emoji\": true \
-                        }, \
-                        \"value\": \"click_me_123\", \
-                        \"url\": \"${url}\", \
-                        \"action_id\": \"button-action\" \
-                      } \
-                    }] \
-                  }"
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\": \"Wiki ${ACTION}: ${TITLE}\n${url}\n${SUMMARY}\n${SENDER}\"}" \
+            ${WEBHOOK_URL}
