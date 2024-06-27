@@ -18,11 +18,22 @@ jobs:
           ACTION: ${{ github.event.pages[0].action }}
           TITLE: ${{ github.event.pages[0].title }}
           HTML_URL: ${{ github.event.pages[0].html_url }}
-          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
-          SUMMARY: ${{ github.event.pages[0].summary }}
           SENDER: ${{ github.event.sender.login }}
+          COLOR: ${{ github.event.pages[0].action == 'created' && '#58a359' || '#1a60b0' }}
+          WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
         run: |
           url=${HTML_URL}/_compare/$(git rev-parse HEAD^)...$(git rev-parse HEAD)
-          curl -X POST -H 'Content-type: application/json' \
-            --data "{\"text\": \"Wiki ${ACTION}: ${TITLE}\n${url}\n${SUMMARY}\n${SENDER}\"}" \
-            ${WEBHOOK_URL}
+          curl -X POST ${WEBHOOK_URL} \
+               -H 'Content-type: application/json' \
+               -d "{ \
+                    \"attachments": [{ \
+                      \"color\": \"${COLOR}\", \
+                      \"blocks\": [{ \
+                        \"type\": \"section\", \
+                        \"text\":{ \
+                          \"type\": \"mrkdwn\", \
+                          \"text\": \"Wiki ${ACTION}: ${TITLE} by ${SENDER}\n${url}\" \
+                        } \
+                      }] \
+                    }] \
+                  }"
